@@ -1,0 +1,22 @@
+# Node
+node_modules/
+.tmp/
+
+# React
+build/
+
+# Spring Boot
+backend/target/
+backend/uploads/
+
+# Logs
+*.log
+backend/output.txt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

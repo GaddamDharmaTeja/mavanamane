@@ -1,0 +1,12 @@
+import { useEffect, useMemo, useState } from "react";
+import "./Shop.css";
+import ShopBanner from "../components/shop/ShopBanner";
+import ShopSidebar from "../components/sidebar/ShopSidebar";
+import ProductCard from "../components/product/ProductCard";
+import Newsletter from "../components/newsletter/Newsletter";
+import PageLayout from "../components/layout/PageLayout";
+import { useShop } from "../context/ShopContext";
+import { getCategories, getProducts } from "../services/productService";
+import banner from "../assets/backgroundimages/shop-banner.png";
+function Shop(){const [selected,setSelected]=useState("All Mangoes");const [maxPrice,setMaxPrice]=useState(Infinity);const [sort,setSort]=useState("Popularity");const [catalog,setCatalog]=useState([]);const [categories,setCategories]=useState([]);const {addToCart,wishlist,toggleWishlist}=useShop();useEffect(()=>{let active=true;Promise.all([getProducts(),getCategories()]).then(([items,groups])=>{if(active){setCatalog(items);setCategories(groups);}}).catch(()=>{if(active){setCatalog([]);setCategories([]);}});return()=>{active=false;};},[]);const visible=useMemo(()=>catalog.filter(product=>(selected==="All Mangoes"||product.variety===selected)&&product.price<=maxPrice).sort((a,b)=>sort==="Price: Low to High"?a.price-b.price:sort==="Price: High to Low"?b.price-a.price:0),[catalog,selected,maxPrice,sort]);return <PageLayout><ShopBanner banner={banner}/><main className="shop-content"><ShopSidebar categories={categories} selected={selected} onSelect={setSelected} maxPrice={maxPrice} setMaxPrice={setMaxPrice} onClear={()=>{setSelected("All Mangoes");setMaxPrice(Infinity);}}/><section className="products-section"><div className="shop-toolbar"><span>Showing {visible.length?`1-${visible.length}`:0} of {catalog.length} results</span><label>Sort by: <select value={sort} onChange={event=>setSort(event.target.value)}><option>Popularity</option><option>Price: Low to High</option><option>Price: High to Low</option></select></label></div><div className="products-grid">{visible.map(product=><ProductCard key={product.id} product={product} onAdd={addToCart} isSaved={wishlist.some(item=>item.id===product.id)} onToggleWishlist={toggleWishlist}/>)}</div>{!visible.length&&<p className="empty-products">No products have been added yet. Add your first mango from Admin → Products.</p>}</section></main><Newsletter/></PageLayout>}
+export default Shop;
